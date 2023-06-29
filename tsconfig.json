@@ -21,6 +21,6 @@
         "./node_modules/user-agent-data-types"
        ]
     },
-    "include": ["public/**/*.ts"],
-    "exclude": ["node_modules", "**/*.spec.ts"]
+    "include": ["./ts/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts", "**/built/*"]
   }

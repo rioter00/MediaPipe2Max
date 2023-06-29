@@ -1,239 +1,194 @@
-// import DeviceDetector from "https://cdn.skypack.dev/device-detector-js@2.2.10";
+// Copyright 2023 The MediaPipe Authors.
 
-import three = require("three");
-import DeviceDetector = require("device-detector-js");
-import * as window from "@mediapipe/control_utils_3d";
-import { LandmarkGrid } from '@mediapipe/control_utils_3d/index';
-import { Pose, POSE_CONNECTIONS, PoseConfig } from '@mediapipe/pose/index'
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-import controls = require("@mediapipe/control_utils");
-
-// Usage: testSupport({client?: string, os?: string}[])
-// Client and os are regular expressions.
-// See: https://cdn.jsdelivr.net/npm/device-detector-js@2.2.10/README.md for
-// legal values for client and os
-testSupport([
-  { client: 'Chrome' },
-]);
-
-function testSupport(supportedDevices: { client?: string; os?: string; }[]) {
-  const deviceDetector = new DeviceDetector();
-  const detectedDevice = deviceDetector.parse(navigator.userAgent);
-
-  let isSupported = false;
-  for (const device of supportedDevices) {
-    if (device.client !== undefined) {
-      const re = new RegExp(`^${device.client}$`);
-      if (!re.test(detectedDevice.client.name)) {
-        continue;
-      }
-    }
-    if (device.os !== undefined) {
-      const re = new RegExp(`^${device.os}$`);
-      if (!re.test(detectedDevice.os.name)) {
-        continue;
-      }
-    }
-    isSupported = true;
-    break;
-  }
-  if (!isSupported) {
-    alert(`This demo, running on ${detectedDevice.client.name}/${detectedDevice.os.name}, ` +
-      `is not well supported at this time, expect some flakiness while we improve our code.`);
-  }
-}
-
-const m_controls = controls;
-const m_LandmarkGrid = LandmarkGrid;
-const drawingUtils = window;
-const mpPose = Pose;
-const options = {
-  locateFile: (file: any) => {
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${mpPose.VERSION}/${file}`;
-  }
-};
-
-// Our input frames will come from here.
-const videoElement =
-  document.getElementsByClassName('input_video')[0] as HTMLVideoElement;
-const canvasElement =
-  document.getElementsByClassName('output_canvas')[0] as HTMLCanvasElement;
-const controlsElement =
-  document.getElementsByClassName('control-panel')[0] as HTMLDivElement;
-const canvasCtx = canvasElement.getContext('2d')!;
-
-// We'll add this to our control panel later, but we'll save it here so we can
-// call tick() each time the graph runs.
-const fpsControl = new m_controls.FPS();
-
-// Optimization: Turn off animated spinner after its hiding animation is done.
-const spinner = document.querySelector('.loading')! as HTMLDivElement;
-spinner.ontransitionend = () => {
-  spinner.style.display = 'none';
-};
-
-const landmarkContainer =
-  document.getElementsByClassName('landmark-grid-container')[0] as HTMLDivElement;
-const grid = new m_LandmarkGrid(landmarkContainer, {
-  connectionColor: 0xCCCCCC,
-  definedColors:
-    [{ name: 'LEFT', value: 0xffa500 }, { name: 'RIGHT', value: 0x00ffff }],
-  range: 2,
-  fitToGrid: true,
-  labelSuffix: 'm',
-  landmarkSize: 2,
-  numCellsPerAxis: 4,
-  showHidden: false,
-  centered: true,
-});
-
-let activeEffect = 'mask';
-function onResults(results: mpPose.Results): void {
-  // Hide the spinner.
-  document.body.classList.add('loaded');
-
-  // Update the frame rate.
-  fpsControl.tick();
-
-  // Draw the overlays.
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-  if (results.segmentationMask) {
-    canvasCtx.drawImage(
-      results.segmentationMask, 0, 0, canvasElement.width,
-      canvasElement.height);
-
-    // Only overwrite existing pixels.
-    if (activeEffect === 'mask' || activeEffect === 'both') {
-      canvasCtx.globalCompositeOperation = 'source-in';
-      // This can be a color or a texture or whatever...
-      canvasCtx.fillStyle = '#00FF007F';
-      canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-    } else {
-      canvasCtx.globalCompositeOperation = 'source-out';
-      canvasCtx.fillStyle = '#0000FF7F';
-      canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-    }
-
-    // Only overwrite missing pixels.
-    canvasCtx.globalCompositeOperation = 'destination-atop';
-    canvasCtx.drawImage(
-      results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-    canvasCtx.globalCompositeOperation = 'source-over';
-  } else {
-    canvasCtx.drawImage(
-      results.image, 0, 0, canvasElement.width, canvasElement.height);
-  }
-
-  if (results.poseLandmarks) {
-    drawingUtils.drawConnectors(
-      canvasCtx, results.poseLandmarks, mpPose.POSE_CONNECTIONS,
-      { visibilityMin: 0.65, color: 'white' });
-    drawingUtils.drawLandmarks(
-      canvasCtx,
-      Object.values(mpPose.POSE_LANDMARKS_LEFT)
-        .map(index => results.poseLandmarks[index]),
-      { visibilityMin: 0.65, color: 'white', fillColor: 'rgb(255,138,0)' });
-    drawingUtils.drawLandmarks(
-      canvasCtx,
-      Object.values(mpPose.POSE_LANDMARKS_RIGHT)
-        .map(index => results.poseLandmarks[index]),
-      { visibilityMin: 0.65, color: 'white', fillColor: 'rgb(0,217,231)' });
-    drawingUtils.drawLandmarks(
-      canvasCtx,
-      Object.values(mpPose.POSE_LANDMARKS_NEUTRAL)
-        .map(index => results.poseLandmarks[index]),
-      { visibilityMin: 0.65, color: 'white', fillColor: 'white' });
-  }
-  canvasCtx.restore();
-
-  if (results.poseWorldLandmarks) {
-    grid.updateLandmarks(results.poseWorldLandmarks, mpPose.POSE_CONNECTIONS, [
-      { list: Object.values(mpPose.POSE_LANDMARKS_LEFT), color: 'LEFT' },
-      { list: Object.values(mpPose.POSE_LANDMARKS_RIGHT), color: 'RIGHT' },
-    ]);
-  } else {
-    grid.updateLandmarks([]);
-  }
-}
-
-const pose = new mpPose.Pose(options);
-pose.onResults(onResults);
-
-// Present a control panel through which the user can manipulate the solution
-// options.
-new controls
-  .ControlPanel(controlsElement, {
-    selfieMode: true,
-    modelComplexity: 1,
-    smoothLandmarks: true,
-    enableSegmentation: false,
-    smoothSegmentation: true,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5,
-    effect: 'background',
-  })
-  .add([
-    new m_controls.StaticText({ title: 'MediaPipe Pose' }),
-    fpsControl,
-    new m_controls.Toggle({ title: 'Selfie Mode', field: 'selfieMode' }),
-    new m_controls.SourcePicker({
-      onSourceChanged: () => {
-        // Resets because this model gives better results when reset between
-        // source changes.
-        pose.reset();
+import {
+    PoseLandmarker,
+    FilesetResolver,
+    DrawingUtils
+  } from "@mediapipe/tasks-vision";
+  
+  const demosSection = document.getElementById("demos");
+  
+  let poseLandmarker: PoseLandmarker = undefined;
+  let runningMode = "IMAGE";
+  let enableWebcamButton: HTMLButtonElement;
+  let webcamRunning: Boolean = false;
+  const videoHeight = "360px";
+  const videoWidth = "480px";
+  
+  // Before we can use PoseLandmarker class we must wait for it to finish
+  // loading. Machine Learning models can be large and take a moment to
+  // get everything needed to run.
+  const createPoseLandmarker = async () => {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+    );
+    poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
+        delegate: "GPU"
       },
-      onFrame:
-        async (input: m_controls.InputImage, size: m_controls.Rectangle) => {
-          const aspect = size.height / size.width;
-          let width: number, height: number;
-          if (window.innerWidth > window.innerHeight) {
-            height = window.innerHeight;
-            width = height / aspect;
-          } else {
-            width = window.innerWidth;
-            height = width * aspect;
-          }
-          canvasElement.width = width;
-          canvasElement.height = height;
-          await pose.send({ image: input });
-        },
-    }),
-    new m_controls.Slider({
-      title: 'Model Complexity',
-      field: 'modelComplexity',
-      discrete: ['Lite', 'Full', 'Heavy'],
-    }),
-    new m_controls.Toggle(
-      { title: 'Smooth Landmarks', field: 'smoothLandmarks' }),
-    new m_controls.Toggle(
-      { title: 'Enable Segmentation', field: 'enableSegmentation' }),
-    new m_controls.Toggle(
-      { title: 'Smooth Segmentation', field: 'smoothSegmentation' }),
-    new m_controls.Slider({
-      title: 'Min Detection Confidence',
-      field: 'minDetectionConfidence',
-      range: [0, 1],
-      step: 0.01
-    }),
-    new m_controls.Slider({
-      title: 'Min Tracking Confidence',
-      field: 'minTrackingConfidence',
-      range: [0, 1],
-      step: 0.01
-    }),
-    new m_controls.Slider({
-      title: 'Effect',
-      field: 'effect',
-      discrete: { 'background': 'Background', 'mask': 'Foreground' },
-    }),
-  ])
-  .on(x => {
-    const options = x as mpPose.Options;
-    videoElement.classList.toggle('selfie', options.selfieMode);
-    activeEffect = (x as { [key: string]: string })['effect'];
-    pose.setOptions(options);
-  });
-
+      runningMode: runningMode,
+      numPoses: 2
+    });
+    demosSection.classList.remove("invisible");
+  };
+  createPoseLandmarker();
+  
+  /********************************************************************
+  // Demo 1: Grab a bunch of images from the page and detection them
+  // upon click.
+  ********************************************************************/
+  
+  // In this demo, we have put all our clickable images in divs with the
+  // CSS class 'detectionOnClick'. Lets get all the elements that have
+  // this class.
+  const imageContainers = document.getElementsByClassName("detectOnClick");
+  
+  // Now let's go through all of these and add a click event listener.
+  for (let i = 0; i < imageContainers.length; i++) {
+    // Add event listener to the child element whichis the img element.
+    imageContainers[i].children[0].addEventListener("click", handleClick);
+  }
+  
+  // When an image is clicked, let's detect it and display results!
+  async function handleClick(event) {
+    if (!poseLandmarker) {
+      console.log("Wait for poseLandmarker to load before clicking!");
+      return;
+    }
+  
+    if (runningMode === "VIDEO") {
+      runningMode = "IMAGE";
+      await poseLandmarker.setOptions({ runningMode: "IMAGE" });
+    }
+    // Remove all landmarks drawed before
+    const allCanvas = event.target.parentNode.getElementsByClassName("canvas");
+    for (var i = allCanvas.length - 1; i >= 0; i--) {
+      const n = allCanvas[i];
+      n.parentNode.removeChild(n);
+    }
+  
+    // We can call poseLandmarker.detect as many times as we like with
+    // different image data each time. The result is returned in a callback.
+    poseLandmarker.detect(event.target, (result) => {
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("class", "canvas");
+      canvas.setAttribute("width", event.target.naturalWidth + "px");
+      canvas.setAttribute("height", event.target.naturalHeight + "px");
+      canvas.style =
+        "left: 0px;" +
+        "top: 0px;" +
+        "width: " +
+        event.target.width +
+        "px;" +
+        "height: " +
+        event.target.height +
+        "px;";
+  
+      event.target.parentNode.appendChild(canvas);
+      const canvasCtx = canvas.getContext("2d");
+      const drawingUtils = new DrawingUtils(canvasCtx);
+      for (const landmark of result.landmarks) {
+        drawingUtils.drawLandmarks(landmark, {
+          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+        });
+        drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
+      }
+    });
+  }
+  
+  /********************************************************************
+  // Demo 2: Continuously grab image from webcam stream and detect it.
+  ********************************************************************/
+  
+  const video = document.getElementById("webcam") as HTMLVideoElement;
+  const canvasElement = document.getElementById(
+    "output_canvas"
+  ) as HTMLCanvasElement;
+  const canvasCtx = canvasElement.getContext("2d");
+  const drawingUtils = new DrawingUtils(canvasCtx);
+  
+  // Check if webcam access is supported.
+  const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
+  
+  // If webcam supported, add event listener to button for when user
+  // wants to activate it.
+  if (hasGetUserMedia()) {
+    enableWebcamButton = document.getElementById("webcamButton");
+    enableWebcamButton.addEventListener("click", enableCam);
+  } else {
+    console.warn("getUserMedia() is not supported by your browser");
+  }
+  
+  // Enable the live webcam view and start detection.
+  function enableCam(event) {
+    if (!poseLandmarker) {
+      console.log("Wait! poseLandmaker not loaded yet.");
+      return;
+    }
+  
+    if (webcamRunning === true) {
+      webcamRunning = false;
+      enableWebcamButton.innerText = "ENABLE PREDICTIONS";
+    } else {
+      webcamRunning = true;
+      enableWebcamButton.innerText = "DISABLE PREDICTIONS";
+    }
+  
+    // getUsermedia parameters.
+    const constraints = {
+      video: true
+    };
+  
+    // Activate the webcam stream.
+    navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+      video.srcObject = stream;
+      video.addEventListener("loadeddata", predictWebcam);
+    });
+  }
+  
+  let lastVideoTime = -1;
+  async function predictWebcam() {
+    canvasElement.style.height = videoHeight;
+    video.style.height = videoHeight;
+    canvasElement.style.width = videoWidth;
+    video.style.width = videoWidth;
+    // Now let's start detecting the stream.
+    if (runningMode === "IMAGE") {
+      runningMode = "VIDEO";
+      await poseLandmarker.setOptions({ runningMode: "VIDEO" });
+    }
+    let startTimeMs = performance.now();
+    if (lastVideoTime !== video.currentTime) {
+      lastVideoTime = video.currentTime;
+      poseLandmarker.detectForVideo(video, startTimeMs, (result) => {
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        for (const landmark of result.landmarks) {
+          drawingUtils.drawLandmarks(landmark, {
+            radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+          });
+          drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
+        }
+        canvasCtx.restore();
+      });
+    }
+  
+    // Call this function again to keep predicting when the browser is ready.
+    if (webcamRunning === true) {
+      window.requestAnimationFrame(predictWebcam);
+    }
+  }
+  
