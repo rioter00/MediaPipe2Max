@@ -1,201 +1,210 @@
-  let poses;
-  const POSITION_INTERVAL = 20;
-  
-  var ifMax = false;
+let poses;
+const POSITION_INTERVAL = 20;
 
-  var videoElement = document.getElementsByClassName("input_video")[0];
-  // videoElement.play();
-  const selectElement = document.getElementById('cameraSelect');
+var ifMax = false;
 
-  const canvasElement = document.getElementsByClassName("output_canvas")[0];
-  const canvasCtx = canvasElement.getContext("2d");
-  const landmarkContainer = document.getElementsByClassName(
-    "landmark-grid-container"
-  )[0];
-  const grid = new LandmarkGrid(landmarkContainer);
+var videoElement = document.getElementsByClassName("input_video")[0];
+// videoElement.play();
+const selectElement = document.getElementById("cameraSelect");
 
-  function detectMax() {
-    try {
-      /*
+const canvasElement = document.getElementsByClassName("output_canvas")[0];
+const canvasCtx = canvasElement.getContext("2d");
+const landmarkContainer = document.getElementsByClassName(
+  "landmark-grid-container"
+)[0];
+const grid = new LandmarkGrid(landmarkContainer);
+
+function detectMax() {
+  try {
+    /*
         For references to all functions attached to window.max object read the
         "Communicating with Max from within jweb" document from Max documentation.
       */
-      window.max.outlet('Running in Max!');
-      // Bind a function to an inlet named 'doSomething'
-      window.max.bindInlet('hideLive', function (val) {
-        videoElement.style.display = val ? 'none' : 'block';
-      });
-      window.max.bindInlet('hideLandmarks', function (val) {
-        window.max.outlet('hideLandmarks', val);
-        canvasElement.style.display = val ? 'none' : 'block';
-        landmarkContainer.style.display = val ? 'none' : 'block';
-      });
-      return true;
-    }
-    catch (e) {
-      console.log('Max no detected. Running in browser.');
-    }
-    return false;
-  }
-
-  // Detect if running in Max or browser
-  ifMax = detectMax();
-
-  // Get available media devices
-  navigator.mediaDevices.enumerateDevices()
-    .then((devices) => {
-      // Filter video devices
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      selectElement.innerHTML = '';
-
-      // Populate the camera select dropdown
-      videoDevices.forEach((device, index) => {
-        const option = document.createElement('option');
-        option.value = device.deviceId;
-        option.label = device.label;
-        option.text = device.label || `Camera: ${device.kind} - ${device.label} - ${index + 1}`;
-        selectElement.appendChild(option);
-        if (ifMax) {
-          window.max.outlet('adding camera to options: ', device.deviceId, device.label, index);
-        }
-        selectElement.value = device.deviceId;
-      });
-    })
-    .catch((error) => {
-      console.error('Error accessing media devices:', error);
-    }).finally(() => {
-      // Start video stream with default camera
-      startVideoStream(selectElement.value);
+    window.max.outlet("Running in Max!");
+    // Bind a function to an inlet named 'doSomething'
+    window.max.bindInlet("hideLive", function (val) {
+      videoElement.style.display = val ? "none" : "block";
     });
+    window.max.bindInlet("hideLandmarks", function (val) {
+      window.max.outlet("hideLandmarks", val);
+      canvasElement.style.display = val ? "none" : "block";
+      landmarkContainer.style.display = val ? "none" : "block";
+    });
+    return true;
+  } catch (e) {
+    console.log("Max no detected. Running in browser.");
+  }
+  return false;
+}
 
-  // Handle camera selection change
-  selectElement.addEventListener('change', (event) => {
-    const deviceId = event.target.value;
-    console.log(`Change camera to: ${deviceId.Camera}`);
-    startVideoStream(deviceId);
+// Detect if running in Max or browser
+ifMax = detectMax();
+
+// Get available media devices
+navigator.mediaDevices
+  .enumerateDevices()
+  .then((devices) => {
+    // Filter video devices
+    const videoDevices = devices.filter(
+      (device) => device.kind === "videoinput"
+    );
+    selectElement.innerHTML = "";
+
+    // Populate the camera select dropdown
+    videoDevices.forEach((device, index) => {
+      const option = document.createElement("option");
+      option.value = device.deviceId;
+      option.label = device.label;
+      option.text =
+        device.label ||
+        `Camera: ${device.kind} - ${device.label} - ${index + 1}`;
+      selectElement.appendChild(option);
+      if (ifMax) {
+        window.max.outlet(
+          "adding camera to options: ",
+          device.deviceId,
+          device.label,
+          index
+        );
+      }
+      selectElement.value = device.deviceId;
+    });
+  })
+  .catch((error) => {
+    console.error("Error accessing media devices:", error);
+  })
+  .finally(() => {
+    // Start video stream with default camera
+    startVideoStream(selectElement.value);
   });
 
-  // Start video stream with selected camera
-  function startVideoStream(deviceId) {
+// Handle camera selection change
+selectElement.addEventListener("change", (event) => {
+  const deviceId = event.target.value;
+  console.log(`Change camera to: ${deviceId.Camera}`);
+  startVideoStream(deviceId);
+});
 
-    // Pause existing stream, if any
-    videoElement.pause();
-    // Close existing stream, if any
-    if (videoElement.srcObject) {
+// Start video stream with selected camera
+function startVideoStream(deviceId) {
+  // Pause existing stream, if any
+  videoElement.pause();
+  // Close existing stream, if any
+  if (videoElement.srcObject) {
+    videoElement.srcObject.getTracks().forEach((track) => {
+      window.max.outlet(`closing existing stream ${track.label}`);
+      track.stop();
+    });
+  }
+  videoElement.srcObject = null;
 
-      videoElement.srcObject.getTracks().forEach(track => {
-        window.max.outlet(`closing existing stream ${track.label}`);
-        track.stop();
-      });
-    }
-    videoElement.srcObject = null;
-
-    // Request video stream from selected camera
-    navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: deviceId } }
+  // Request video stream from selected camera
+  navigator.mediaDevices
+    .getUserMedia({
+      video: { deviceId: { exact: deviceId } },
     })
-      .then((stream) => {
-        videoElement.srcObject = stream;
-        videoElement.play();
-        videoElement.onloadedmetadata = () => {
-          // once the video stream is loaded, request a callback
-          const frameProcessing = (now, metadata) => {
-            processFrame();
-            videoElement.requestVideoFrameCallback(frameProcessing);
-          }
+    .then((stream) => {
+      videoElement.srcObject = stream;
+      videoElement.play();
+      videoElement.onloadedmetadata = () => {
+        // once the video stream is loaded, request a callback
+        const frameProcessing = (now, metadata) => {
+          processFrame();
           videoElement.requestVideoFrameCallback(frameProcessing);
         };
-      })
-      .catch((error) => {
-        console.error('Error accessing camera:', error);
-      });
-
-    // Start pose detection
-    const pose = new Pose({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-      },
+        videoElement.requestVideoFrameCallback(frameProcessing);
+      };
+    })
+    .catch((error) => {
+      console.error("Error accessing camera:", error);
     });
 
-    pose.setOptions({
-      selfieMode: true,
-      modelComplexity: 1,
-      smoothLandmarks: true,
-      enableSegmentation: true,
-      smoothSegmentation: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-    pose.onResults(onResults);
+  // Start pose detection
+  const pose = new Pose({
+    locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+    },
+  });
 
-    async function processFrame() {
-      // Send the videoElement to the MediaPipe
-      await pose.send({ image: videoElement });
-    }
+  pose.setOptions({
+    selfieMode: true,
+    modelComplexity: 1,
+    smoothLandmarks: true,
+    enableSegmentation: true,
+    smoothSegmentation: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+  });
+  pose.onResults(onResults);
 
-    if(ifMax) posesToMax();
+  async function processFrame() {
+    // Send the videoElement to the MediaPipe
+    await pose.send({ image: videoElement });
   }
 
-  ///
-  function onResults(results) {
-    if (!results.poseLandmarks) {
-      grid.updateLandmarks([]);
-      return;
-    }
+  if (ifMax) posesToMax();
+}
 
-    poses = results.poseLandmarks;
-
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(
-      results.segmentationMask,
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
-
-    // Only overwrite existing pixels.
-    canvasCtx.globalCompositeOperation = "source-in";
-    canvasCtx.fillStyle = "#00FF00";
-    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-
-    // Only overwrite missing pixels.
-    canvasCtx.globalCompositeOperation = "destination-atop";
-    canvasCtx.drawImage(
-      results.image,
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
-
-    canvasCtx.globalCompositeOperation = "source-over";
-    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
-      color: "#00FF00",
-      lineWidth: 4,
-    });
-    drawLandmarks(canvasCtx, results.poseLandmarks, {
-      color: "#FF0000",
-      lineWidth: 2,
-    });
-    canvasCtx.restore();
-
-    grid.updateLandmarks(results.poseWorldLandmarks);
+///
+function onResults(results) {
+  if (!results.poseLandmarks) {
+    grid.updateLandmarks([]);
+    return;
   }
 
-  // max related functions
-  function posesToMax() {
-    window.max.outlet('posesToMax');
-    setInterval(setPoses, POSITION_INTERVAL);
-  };
+  poses = results.poseLandmarks;
 
-  function toObject(arr) {
-    var rv = {};
-    for (var i = 0; i < arr.length; ++i) rv[i] = arr[i];
-    return rv;
-  }
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  canvasCtx.drawImage(
+    results.segmentationMask,
+    0,
+    0,
+    canvasElement.width,
+    canvasElement.height
+  );
 
-  const setPoses = () => {
-    window.max.setDict("poses", toObject(poses));
-  };
+  // Only overwrite existing pixels.
+  canvasCtx.globalCompositeOperation = "source-in";
+  canvasCtx.fillStyle = "#00FF00";
+  canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
+  // Only overwrite missing pixels.
+  canvasCtx.globalCompositeOperation = "destination-atop";
+  canvasCtx.drawImage(
+    results.image,
+    0,
+    0,
+    canvasElement.width,
+    canvasElement.height
+  );
+
+  canvasCtx.globalCompositeOperation = "source-over";
+  drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+    color: "#00FF00",
+    lineWidth: 4,
+  });
+  drawLandmarks(canvasCtx, results.poseLandmarks, {
+    color: "#FF0000",
+    lineWidth: 2,
+  });
+  canvasCtx.restore();
+
+  grid.updateLandmarks(results.poseWorldLandmarks);
+}
+
+// max related functions
+function posesToMax() {
+  window.max.outlet("posesToMax");
+  setInterval(setPoses, POSITION_INTERVAL);
+}
+
+function toObject(arr) {
+  var rv = {};
+  for (var i = 0; i < arr.length; ++i) rv[i] = arr[i];
+  return rv;
+}
+
+const setPoses = () => {
+  window.max.setDict("poses", toObject(poses));
+};
