@@ -50,9 +50,15 @@ navigator.mediaDevices
     );
     selectElement.innerHTML = "";
 
+    console.log("Media Devices? " + videoDevices);
+    console.dir(videoDevices);
+
     // Populate the camera select dropdown
     videoDevices.forEach((device, index) => {
       const option = document.createElement("option");
+      console.log("Device?");
+      console.dir(device);
+      console.log("Creating device Id: " + device.deviceId);
       option.value = device.deviceId;
       option.label = device.label;
       option.text =
@@ -75,7 +81,13 @@ navigator.mediaDevices
   })
   .finally(() => {
     // Start video stream with default camera
-    startVideoStream(selectElement.value);
+    console.log("selected element: " + selectElement.value);
+    console.dir(selectElement);
+    if (selectElement.value != "") {
+      startVideoStream(selectElement.value);
+    } else {
+      console.error("No selected element exists: " + selectElement.value);
+    }
   });
 
 // Handle camera selection change
@@ -88,6 +100,9 @@ selectElement.addEventListener("change", (event) => {
 // Start video stream with selected camera
 function startVideoStream(deviceId) {
   // Pause existing stream, if any
+  console.log("Video Element: " + videoElement);
+  console.dir(videoElement);
+
   videoElement.pause();
   // Close existing stream, if any
   if (videoElement.srcObject) {
@@ -97,6 +112,11 @@ function startVideoStream(deviceId) {
     });
   }
   videoElement.srcObject = null;
+
+  const frameProcessing = (now, metadata) => {
+    processFrame();
+    videoElement.requestVideoFrameCallback(frameProcessing);
+  };
 
   // Request video stream from selected camera
   navigator.mediaDevices
@@ -108,21 +128,23 @@ function startVideoStream(deviceId) {
       videoElement.play();
       videoElement.onloadedmetadata = () => {
         // once the video stream is loaded, request a callback
-        const frameProcessing = (now, metadata) => {
-          processFrame();
-          videoElement.requestVideoFrameCallback(frameProcessing);
-        };
+        // const frameProcessing = (now, metadata) => {
+        //   processFrame();
+        //   videoElement.requestVideoFrameCallback(frameProcessing);
+        // };
         videoElement.requestVideoFrameCallback(frameProcessing);
       };
     })
     .catch((error) => {
       console.error("Error accessing camera:", error);
+      console.dir(error);
     });
 
   // Start pose detection
   const pose = new Pose({
     locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+      // return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+      return `./pose/${file}`;
     },
   });
 
@@ -139,7 +161,9 @@ function startVideoStream(deviceId) {
 
   async function processFrame() {
     // Send the videoElement to the MediaPipe
-    await pose.send({ image: videoElement });
+    console.log(pose);
+    console.dir(pose);
+    // await pose.send({ image: videoElement });
   }
 
   if (ifMax) posesToMax();
