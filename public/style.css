@@ -1,0 +1,7 @@
+video  {
+    width: 192px;
+    height: 192px;
+    background: rgba(0,0,0,0.2);
+    -webkit-transform: scaleX(-1) !important; /* mirror effect while using front cam */
+    transform: scaleX(-1) !important;        /* mirror effect while using front cam */
+  }

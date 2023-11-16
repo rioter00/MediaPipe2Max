@@ -92,7 +92,7 @@ async function predictWebcam() {
   // Now let's start detecting the stream.
   if (runningMode === "IMAGE") {
     runningMode = "VIDEO";
-    await poseLandmarker.setOptions({ runningMode: "VIDEO" });
+    await poseLandmarker.setOptions({ runningMode: "VIDEO", selfieMode: true });
   }
   // await poseLandmarker.setOptions({ runningMode: "VIDEO" });
   let startTimeMs = performance.now();
@@ -104,7 +104,6 @@ async function predictWebcam() {
       if (ifMax) {
         poses = result.landmarks[0];
       }
-      console.dir(result.landmarks[0]);
       for (const landmark of result.landmarks) {
         drawingUtils.drawLandmarks(landmark, {
           radius: (data) => DrawingUtils.lerp(data.from.z, -0.15, 0.1, 5, 1),
