@@ -1,0 +1,45 @@
+<!-- https://developers.google.com/mediapipe/solutions/vision/pose_landmarker/ -->
+<!-- https://github.com/ayushgdev/MediaPipeCodeSamples/blob/main/Vanilla%20JS/face%20detection%20with%20secondary%20cams.html -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script> -->
+  
+  
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils_3d/control_utils_3d.js" -->
+    <!-- crossorigin="anonymous"></script> -->
+  
+  
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.3/hands.js" crossorigin="anonymous"></script> -->
+</head>
+
+<body>
+  <div class="container">
+    <button id="webcamButton" class="mdc-button mdc-button--raised">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">ENABLE WEBCAM</span>
+    </button>
+    <select id="cameraSelect"></select>
+    <div></div>
+    <video class="input_video" autoplay playsinline style="width: 1280px; height: 720px;"></video>
+    <!-- <canvas class="output_canvas" width="640px" height="360px"></canvas> -->
+    <canvas class="output_canvas" id="output_canvas" width="1280" height="720" style="position: absolute; left: 0px;"></canvas>
+
+    <div class="landmark-grid-container"></div>
+    <div id="showTracking"></div>
+  </div>
+</body>
+
+<!-- <script src="https://cdn.skypack.dev/pin/@mediapipe/tasks-vision@v0.10.0-8dkq0bGVemDsi7WEcgKW/mode=imports/optimized/@mediapipe/tasks-vision.js"></script> -->
+<!-- <script src="test.js"></script> -->
+<!-- partial -->
+<script type="module" src="script.js"></script>
+</html>
