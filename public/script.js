@@ -9,8 +9,10 @@ let poses;
 const POSITION_INTERVAL = 20;
 var runningMode = "IMAGE";
 let webcamRunning = false;
-const videoHeight = "360px";
-const videoWidth = "480px";
+const videoHeight = "480px";
+const videoWidth = "640px";
+// const videoHeight = "720px";
+// const videoWidth = "960px";
 let poseLandmarker = undefined;
 let enableWebcamButton;
 
@@ -73,12 +75,20 @@ function enableCam(event) {
     enableWebcamButton.innerText = "DISABLE PREDICTIONS";
   }
   // getUsermedia parameters.
+  const videoConstraints = {};
+  videoConstraints.deviceId = { exact: selectElement.value };
   const constraints = {
-    video: true,
+    // video: true,
+    video: videoConstraints,
   };
   // Activate the webcam stream.
+  // navigator.mediaDevices.enumerateDevices().then((devices) => {
   navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+    console.log("!!!!!--- stream: " + stream);
+    console.dir(stream);
     video.srcObject = stream;
+    // console.log("!!!!!--- video.srcObject: " + video.srcObject);
+    // console.dir(video.srcObject);
     video.addEventListener("loadeddata", predictWebcam);
   });
 }
@@ -146,7 +156,74 @@ function detectMax() {
 // Detect if running in Max or browser
 ifMax = detectMax();
 
+function updateCameraList(cameras) {
+  console.log("Cameras: " + cameras);
+  console.dir(cameras);
+  console.log(typeof cameras);
+  if (cameras == null) return;
+  cameras.then((cameras) => {
+    cameras.forEach((camera) => {
+      const cameraOption = document.createElement("option");
+      cameraOption.label = camera.label;
+      cameraOption.value = camera.deviceId;
+      selectElement.appendChild(cameraOption);
+    });
+  });
+}
+
+// Fetch an array of devices of a certain type
+async function getConnectedDevices(type) {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  console.log("Devices: " + devices);
+  console.dir(devices.filter((device) => device.kind === type));
+  return devices.filter((device) => device.kind === type);
+}
+
+// Get the initial set of cameras connected
+const videoCameras = getConnectedDevices("videoinput");
+updateCameraList(videoCameras);
+
+// Listen for changes to media devices and update the list accordingly
+navigator.mediaDevices.addEventListener("devicechange", (event) => {
+  const newCameraList = getConnectedDevices("video");
+  updateCameraList(newCameraList);
+});
+
 //-----------------
+// const constraints = {
+//   video: true,
+// };
+// navigator.mediaDevices.enumerateDevices().then((videoDevices) => {
+// // navigator.mediaDevices.getUserMedia(constraints).then((videoDevices) => {
+//   // Filter video devices
+//   // const videoDevices = devices.filter((device) => device.kind === "videoinput");
+//   selectElement.innerHTML = "";
+
+//   console.log("Media Devices? " + videoDevices);
+//   console.dir(videoDevices);
+
+//   // Populate the camera select dropdown
+//   videoDevices.forEach((device, index) => {
+//     const option = document.createElement("option");
+//     console.log("Device?: ");
+//     console.dir(device);
+//     console.log("Creating device Id: " + device.deviceId);
+//     option.value = device.deviceId;
+//     option.label = device.label;
+//     option.text =
+//       device.label || `Camera: ${device.kind} - ${device.label} - ${index + 1}`;
+//     selectElement.appendChild(option);
+//     if (ifMax) {
+//       window.max.outlet(
+//         "adding camera to options: ",
+//         device.deviceId,
+//         device.label,
+//         index
+//       );
+//     }
+//     selectElement.value = device.deviceId;
+//   });
+// });
 
 //-----------------
 // // Get available media devices
