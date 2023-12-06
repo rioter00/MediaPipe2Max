@@ -10,9 +10,9 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 91.0, 950.0, 753.0 ],
+		"rect" : [ 34.0, 91.0, 1227.0, 753.0 ],
 		"bglocked" : 0,
-		"openinpresentation" : 0,
+		"openinpresentation" : 1,
 		"default_fontsize" : 12.0,
 		"default_fontface" : 0,
 		"default_fontname" : "Arial",
@@ -39,6 +39,62 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"id" : "obj-58",
+					"linecount" : 2,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 245.333340644836426, 17.333333849906921, 150.0, 33.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 345.416678667068481, 10.0, 226.000002264976501, 20.0 ],
+					"text" : "4. Click box so that the X appears."
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-37",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 1136.500016212463379, 568.166681051254272, 150.0, 20.0 ],
+					"presentation" : 1,
+					"presentation_linecount" : 3,
+					"presentation_rect" : [ 1136.500016212463379, 567.166679978370667, 81.999997973442078, 47.0 ],
+					"text" : "DO NOT touch this slider."
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-35",
+					"linecount" : 2,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 961.000031232833862, 554.000012516975403, 150.0, 33.0 ],
+					"presentation" : 1,
+					"presentation_linecount" : 3,
+					"presentation_rect" : [ 967.166677832603455, 532.166679978370667, 81.999997973442078, 47.0 ],
+					"text" : "2. Drag Dry Slider to ~80%"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-25",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 1394.66670823097229, 596.000017762184143, 150.0, 20.0 ],
+					"presentation" : 1,
+					"presentation_rect" : [ 1371.666710138320923, 580.666679978370667, 81.999997973442078, 20.0 ],
+					"text" : "3. Start Audio"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-124",
 					"linecount" : 2,
@@ -1709,8 +1765,8 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 29.0, 56.0, 150.0, 33.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 13.75, 48.0, 191.0, 20.0 ],
-					"text" : "3. CLICK on Enable Webcam"
+					"presentation_rect" : [ 13.75, 43.99999988079071, 235.000001311302185, 20.0 ],
+					"text" : "1. Click START, Click Enable Webcam"
 				}
 
 			}
@@ -1749,7 +1805,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 208.0, 590.0, 150.0, 20.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 210.0, 12.0, 150.0, 20.0 ],
+					"presentation_rect" : [ 379.333338379859924, 43.99999988079071, 150.0, 20.0 ],
 					"text" : "Start Polling Pose Data"
 				}
 
@@ -2655,7 +2711,7 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 1815.0, 354.0, 46.0, 25.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 990.833341717720032, 485.666679978370667, 46.0, 25.0 ],
+					"presentation_rect" : [ 1010.333366990089417, 485.666679978370667, 46.0, 25.0 ],
 					"text" : "dry"
 				}
 
@@ -2758,7 +2814,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 1863.0, 354.0, 22.0, 140.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 1038.833341717720032, 485.666679978370667, 22.0, 140.0 ]
+					"presentation_rect" : [ 1058.333366990089417, 485.666679978370667, 22.0, 140.0 ]
 				}
 
 			}
@@ -3214,7 +3270,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 179.0, 590.0, 24.0, 24.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 176.083340287208557, 10.0, 24.0, 24.0 ]
+					"presentation_rect" : [ 345.416678667068481, 41.99999988079071, 24.0, 24.0 ]
 				}
 
 			}
@@ -3320,8 +3376,6 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 214.0, 527.0, 35.0, 22.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 402.333325505256653, 44.0, 35.0, 22.0 ],
 					"text" : "clear"
 				}
 
@@ -3346,9 +3400,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "bang" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 169.0, 527.0, 24.0, 24.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 554.833324074745178, 44.0, 24.0, 24.0 ]
+					"patching_rect" : [ 169.0, 527.0, 24.0, 24.0 ]
 				}
 
 			}
@@ -3383,9 +3435,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "int" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 46.75, 527.0, 24.0, 24.0 ],
-					"presentation" : 1,
-					"presentation_rect" : [ 329.833325505256653, 44.0, 24.0, 24.0 ]
+					"patching_rect" : [ 46.75, 527.0, 24.0, 24.0 ]
 				}
 
 			}
