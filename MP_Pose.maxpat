@@ -925,6 +925,7 @@
 						"style" : "",
 						"subpatcher_template" : "",
 						"assistshowspatchername" : 0,
+						"visible" : 1,
 						"boxes" : [ 							{
 								"box" : 								{
 									"id" : "obj-5",
@@ -1299,6 +1300,7 @@
 													"fontname" : "Arial",
 													"fontsize" : 13.0,
 													"id" : "obj-12",
+													"linecount" : 2,
 													"maxclass" : "textedit",
 													"numinlets" : 1,
 													"numoutlets" : 4,
@@ -1306,8 +1308,10 @@
 													"parameter_enable" : 0,
 													"patching_rect" : [ 53.0, 148.0, 426.0, 19.0 ],
 													"presentation" : 1,
+													"presentation_linecount" : 2,
 													"presentation_rect" : [ 4.0, 6.0, 426.0, 19.0 ],
-													"rounded" : 6.0
+													"rounded" : 6.0,
+													"text" : "\"Macintosh HD:/Users/nickhwang/Documents/GitHub/MediaPipe2Max/sounds/\""
 												}
 
 											}
@@ -1406,7 +1410,7 @@
 									"fontname" : "Arial",
 									"fontsize" : 13.0,
 									"id" : "obj-67",
-									"items" : [ "car horn double.wav", ",", "car horn single.wav", ",", "Chips Crinkling Glitched.wav", ",", "claps_pitched_down.wav", ",", "crumple_paper_big.wav", ",", "crush 2 R.aif", ",", "Large Glass Spacebirds.wav", ",", "Lid Wide _ Dirty.wav", ",", "marker_pop_single.wav", ",", "marker_swipe_low_2_octaves.wav", ",", "marker_swipe_single.wav", ",", "paper_crumple_small.wav", ",", "pen_click_single.wav", ",", "pin_box_shake.wav", ",", "pin_box_single.wav", ",", "pour 3 R.aif", ",", "ring high-2.aif", ",", "Small Glass Chorus Low.wav", ",", "Small Glass Spacebirds.wav", ",", "snaps_reverb.wav", ",", "snaps_reversed_reverb.wav", ",", "snaps_single.wav", ",", "spoon_on_bottle_reverse_reverb.wav", ",", "tree shaking-no-lows.wav", ",", "tree shaking-pitched-down-octave.wav", ",", "wood_panel_knock_double.wav", ",", "wood_panel_knock_double_low_octave.wav", ",", "wood_panel_knock_double_reverb.wav", ",", "wood_panel_knock_mid.wav", ",", "wood_panel_knock_single_1.wav", ",", "wood_panel_knock_sinle_reverb.wav" ],
+									"items" : [ "bass.pkf", ",", "bass.wav", ",", "bone.wav", ",", "car horn double.wav", ",", "car horn single.wav", ",", "Chips Crinkling Glitched.pkf", ",", "Chips Crinkling Glitched.wav", ",", "claps_pitched_down.wav", ",", "crumple_paper_big.wav", ",", "crush 2 R.aif", ",", "crush 2 R.pkf", ",", "Large Glass Spacebirds.wav", ",", "Lid Wide _ Dirty.wav", ",", "marker_swipe_low_2_octaves.wav", ",", "marker_swipe_single.wav", ",", "pin_box_shake.wav", ",", "pin_box_single.wav", ",", "pour 3 R.aif", ",", "pour 3 R.pkf", ",", "ring high-2.aif", ",", "ring high-2.pkf", ",", "sksksk.pkf", ",", "sksksk.wav", ",", "Small Glass Chorus Low.wav", ",", "Small Glass Spacebirds.wav", ",", "snaps_reverb.wav", ",", "snaps_reversed_reverb.wav", ",", "snaps_single.wav", ",", "spoon_on_bottle.wav", ",", "spoon_on_bottle_low_octave.wav", ",", "spoon_on_bottle_reverse_reverb.wav", ",", "tree shaking-pitched-down-octave.pkf", ",", "tree shaking-pitched-down-octave.wav", ",", "wood_panel_knock_double.wav", ",", "wood_panel_knock_double_low_octave.wav", ",", "wood_panel_knock_double_reverb.wav", ",", "wood_panel_knock_mid.wav", ",", "wood_panel_knock_single_1.wav", ",", "wood_panel_knock_sinle_reverb.wav" ],
 									"maxclass" : "umenu",
 									"numinlets" : 1,
 									"numoutlets" : 3,
@@ -1993,6 +1997,8 @@
 									"saved_object_attributes" : 									{
 										"autostart" : 0,
 										"defer" : 0,
+										"node_bin_path" : "",
+										"npm_bin_path" : "",
 										"watch" : 0
 									}
 ,
